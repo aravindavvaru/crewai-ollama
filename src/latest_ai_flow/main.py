@@ -15,9 +15,9 @@ class LatestAiFlow(Flow[ResearchFlowState]):
   @start()
   def prepare_topic(self, crewai_trigger_payload: dict | None = None):
     if crewai_trigger_payload:
-      self.state.topic = crewai_trigger_payload.get("topic", "AI Agents")
+      self.state.topic = crewai_trigger_payload.get("topic", "eBPF")
     else:
-      self.state.topic = "AI Agents"
+      self.state.topic = "eBPF"
     print(f"Topic: {self.state.topic}")
 
   @listen(prepare_topic)
