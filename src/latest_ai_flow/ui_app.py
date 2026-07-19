@@ -238,7 +238,7 @@ def _ui_html() -> str:
             <label>Topic
               <input id="topic" value="eBPF" />
             </label>
-            <button onclick="startRun()">Run flow</button>
+            <button id="start-run-button">Run flow</button>
           </div>
           <p><a href="/graphql" target="_blank">Open GraphiQL</a></p>
         </div>
@@ -249,7 +249,7 @@ def _ui_html() -> str:
         <div class="card">
           <div class="row" style="justify-content: space-between; align-items: center;">
             <h2 style="margin: 0;">Run history</h2>
-            <button onclick="clearRuns()">Clear history</button>
+            <button id="clear-runs-button">Clear history</button>
           </div>
           <div id="history" class="run-list"></div>
         </div>
@@ -305,7 +305,7 @@ def _ui_html() -> str:
               return;
             }
             history.innerHTML = runs.map(run => `
-              <div class="run-item" onclick="toggleLogs('${run.id}')">
+              <div class="run-item" data-run-id="${run.id}">
                 <div class="row" style="justify-content: space-between; align-items: center;">
                   <div><strong>${run.id}</strong> <span class="pill">${run.workflow}</span></div>
                   <span class="status ${run.status}">${run.status}</span>
@@ -331,11 +331,24 @@ def _ui_html() -> str:
             try {
               const response = await fetch(`/api/runs/${runId}/logs`);
               const data = await response.json();
-              panel.textContent = (data.logs || []).join('\n');
+              panel.textContent = (data.logs || []).join('\\n');
             } catch (error) {
               panel.textContent = `Unable to load logs: ${error}`;
             }
           }
+
+          document.getElementById('start-run-button').addEventListener('click', startRun);
+          document.getElementById('clear-runs-button').addEventListener('click', clearRuns);
+
+          document.addEventListener('click', (event) => {
+            const item = event.target.closest('.run-item');
+            if (item) {
+              const runId = item.getAttribute('data-run-id');
+              if (runId) {
+                toggleLogs(runId);
+              }
+            }
+          });
 
           loadRuns();
           setInterval(loadRuns, 4000);
